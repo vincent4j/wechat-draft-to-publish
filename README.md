@@ -1,0 +1,48 @@
+# wechat-draft-to-publish
+
+把一份 Markdown 草稿依次完成去除 AI 味、正文配图、封面制作和公众号排版，生成可直接发布的微信公众号图文成稿。
+
+## 工作流程
+
+1. 去除 AI 味
+2. 正文配图
+3. 封面制作
+4. 文章排版
+
+每一步完成后都会给出回执，说明做了什么、为什么这样处理，并等待用户确认后再进入下一步。也可以从任意一步开始。
+
+## 使用方式
+
+将 Skill 安装到项目的 `.agents/skills/`：
+
+```bash
+git clone https://github.com/vincent4j/wechat-draft-to-publish.git \
+  .agents/skills/wechat-draft-to-publish
+```
+
+然后在 Codex 中使用：
+
+```text
+$wechat-draft-to-publish 处理这篇文章
+```
+
+Skill 会识别文章草稿，并让你选择从哪一步开始。
+
+## 默认效果
+
+- 正文配图：`saas-guide`、`per-section`、`macaron`
+- 图片目录：文章同目录下的 `assets/`
+- 公众号封面：2.35:1、Macaron 配色、手绘风格
+- 公众号排版：摸鱼绿、16px 正文、8px 两侧留白
+- 最终生成纯净 HTML 和一键复制预览版
+
+## 依赖
+
+需要提前安装以下 Skills：
+
+- `humanizer-zh`
+- `baoyu-article-illustrator`
+- `baoyu-cover-image`
+- `gzh-design`
+
+具体工作流和约束以 [SKILL.md](SKILL.md) 为准。
