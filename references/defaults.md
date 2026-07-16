@@ -2,6 +2,22 @@
 
 当前用户要求优先于本文件。只在用户没有指定时使用以下默认值。
 
+## 工作流交互
+
+```yaml
+mode: ask
+step_mode:
+  pause_after_each_step: true
+auto_mode:
+  confirmation_word: 开始
+  pause_after_each_step: false
+  progress_receipt_after_each_step: true
+  reuse_default_generation_parameters: true
+```
+
+自动模式的“开始”是对本次执行摘要和默认生成参数的一次总确认。执行期间仍逐步反馈，
+但不再重复要求用户回复步骤序号或确认配图、封面方案。
+
 ## 正文配图
 
 ```yaml
@@ -32,18 +48,24 @@ generation_batch_size: 4
 ## 公众号封面
 
 ```yaml
-type: conceptual
-palette: macaron
+type: metaphor
+palette: ai-product-series
 rendering: hand-drawn
 text: title-subtitle
-mood: bold
+mood: balanced
 aspect: 2.35:1
 language: zh
 watermark: false
 output_dir: assets/
 filename: cover.png
 image_backend: Codex 内置生图模型
+style_preferences: .baoyu-skills/baoyu-cover-image/EXTEND.md
+style_reference: .baoyu-skills/baoyu-cover-image/refs/ai-product-series-cover.png
 ```
+
+系列封面以 `style_reference` 为视觉基准，并遵循 `style_preferences` 中的
+“AI 编程从想法到产品：系列封面规则”。后续文章沿用纸张、线条、配色、手写标题和
+“标题主导 + 内容隐喻”的构图，只替换文章序号、标题和核心隐喻；不要固定复用第 01 篇的跨桥画面。
 
 ## 文章排版
 
@@ -54,15 +76,20 @@ body_line_height: 1.85
 content_horizontal_padding: 8px
 container_width: 100%
 preview_width: 820px
+show_header_card: false
+show_toc: false
+show_author_signature: false
+show_footer_cta: false
 ```
 
 附加要求：
 
-- 精选导读完整展示所有二级标题，不只抽取部分章节。
+- 不生成正文顶部封面卡或章节目录。
+- 不生成作者介绍、点赞/在看/转发互动卡或品牌尾图。
 - 章节序号连续且与正文一致。
 - 纯净 HTML 保留相对图片路径。
 - 一键复制预览版内嵌本地图片，并优先使用支持富文本与图片的剪贴板复制方式。
-- 生成后检查 Markdown 图片路径、目录数量、标题数量和排版校验结果。
+- 生成后检查 Markdown 图片路径、标题数量和排版校验结果。
 
 ## 产物命名
 
@@ -77,3 +104,34 @@ preview_width: 820px
 ```
 
 如果从中间步骤开始，直接基于用户指定的输入文件生成该步骤产物。
+
+## 收尾清理
+
+```yaml
+cleanup:
+  enabled: true
+  run_after_preview_validation: true
+  keep_root_documents:
+    - "{原稿}.md"
+    - "{原稿}_去除AI味.md"
+    - "{原稿}_配图版.md"
+    - "{原稿}_排版_{主题}.html"
+    - "{原稿}_排版_{主题}_预览.html"
+  keep_assets:
+    - assets/cover.png
+    - 被保留 Markdown 或纯净 HTML 引用的图片
+  remove_known_intermediates:
+    - assets/cover-*
+    - 未被保留文档引用的 assets/section-*
+    - assets/outline.md
+    - assets/*prompt*
+    - assets/*提示词*
+    - assets/prompts/
+    - assets/.prompts/
+    - 未被保留文档引用的 assets/refs/
+    - assets/tmp/
+    - assets/.tmp/
+```
+
+清理不删除文章根目录中的任何 Markdown 或 HTML，也不删除命名规则之外的未知文件。
+必须先预览删除清单，再由工作流自行核对并执行，不需要用户二次确认。
