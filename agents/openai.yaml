@@ -1,0 +1,7 @@
+interface:
+  display_name: "草稿到公众号成稿"
+  short_description: "把文章草稿依次处理为可直接复制发布的微信公众号图文成稿"
+  default_prompt: "使用 $wechat-draft-to-publish 把这份草稿处理成可发布的公众号文章，每一步完成后等我确认。"
+
+policy:
+  allow_implicit_invocation: true
