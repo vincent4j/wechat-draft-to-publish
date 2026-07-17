@@ -2,6 +2,21 @@
 
 当前用户要求优先于本文件。只在用户没有指定时使用以下默认值。
 
+## 子 Skill 调用
+
+```yaml
+child_skill_invocation:
+  resolve_from_workflow: true
+  skip_first_time_setup: true
+  persist_preferences: false
+  prompt_only_for_unresolved_required_values: true
+```
+
+这些参数表示本文件就是子 Skill 在本次工作流中的调用配置。即使子 Skill 没有
+`EXTEND.md` 或其它偏好文件，也不得触发首次配置，不得询问偏好保存范围，更不得把
+本工作流的默认值写成全局或项目偏好。只有本文件与当前用户要求都缺少某个必需值时，
+才询问该缺失项。
+
 ## 工作流交互
 
 ```yaml
@@ -22,6 +37,8 @@ auto_mode:
 
 ```yaml
 preset: saas-guide
+type: infographic
+style: notion
 density: per-section
 palette: macaron
 language: zh
@@ -30,6 +47,9 @@ output_dir: assets/
 image_backend: Codex 内置生图模型
 generation_batch_size: 4
 ```
+
+`saas-guide` 在本工作流中固定展开为 `infographic + notion`。这里显式写出展开结果，
+子 Skill 不得再单独询问默认插画风格。
 
 图片与文章放在同一目录层级下的 `assets/`：
 
