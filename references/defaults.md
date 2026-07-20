@@ -24,14 +24,17 @@ mode: ask
 step_mode:
   pause_after_each_step: true
 auto_mode:
-  confirmation_word: 开始
+  selection_is_authorization: true
+  show_execution_summary: true
+  start_immediately_after_summary: true
   pause_after_each_step: false
   progress_receipt_after_each_step: true
   reuse_default_generation_parameters: true
 ```
 
-自动模式的“开始”是对本次执行摘要和默认生成参数的一次总确认。执行期间仍逐步反馈，
-但不再重复要求用户回复步骤序号或确认配图、封面方案。
+用户回复 `自动 N` 就是对本次执行和默认生成参数的总授权。自动执行摘要只用于说明
+接下来会做什么，发出后立即开始；不得再要求用户回复 `开始`、步骤序号，或确认配图、
+封面方案。执行期间仍逐步反馈。
 
 ## 正文配图
 
@@ -111,6 +114,27 @@ show_footer_cta: false
 - 一键复制预览版内嵌本地图片，并优先使用支持富文本与图片的剪贴板复制方式。
 - 生成后检查 Markdown 图片路径、标题数量和排版校验结果。
 
+## 公众号摘要
+
+```yaml
+source_priority:
+  - "{原稿}_配图版.md"
+  - "{原稿}_去除AI味.md"
+  - "{原稿}.md"
+max_chars: 120
+single_paragraph: true
+include_title: false
+include_emoji: false
+include_hashtags: false
+include_links: false
+filename: "{原稿}_公众号摘要.md"
+validation_script: scripts/validate_summary.py
+```
+
+摘要必须忠于正文，直接说明文章主题和读者能获得的内容。文件只保留摘要正文，不添加
+“摘要”标题、解释、备选版本或字数说明。去除首尾空白后按 Unicode 字符计数，中文、
+标点、英文字母和数字都计入长度，结果必须不超过 120 个字符。
+
 ## 产物命名
 
 默认不覆盖用户原稿：
@@ -121,6 +145,7 @@ show_footer_cta: false
 原稿_配图版.md
 原稿_排版_摸鱼绿.html
 原稿_排版_摸鱼绿_预览.html
+原稿_公众号摘要.md
 ```
 
 如果从中间步骤开始，直接基于用户指定的输入文件生成该步骤产物。
@@ -130,13 +155,14 @@ show_footer_cta: false
 ```yaml
 cleanup:
   enabled: true
-  run_after_preview_validation: true
+  run_after_final_step_validation: true
   keep_root_documents:
     - "{原稿}.md"
     - "{原稿}_去除AI味.md"
     - "{原稿}_配图版.md"
     - "{原稿}_排版_{主题}.html"
     - "{原稿}_排版_{主题}_预览.html"
+    - "{原稿}_公众号摘要.md"
   keep_assets:
     - assets/cover.png
     - 被保留 Markdown 或纯净 HTML 引用的图片

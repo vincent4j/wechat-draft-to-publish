@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""检查父工作流不会把子 Skill 的首次配置暴露给用户。"""
+"""检查父级配置继承、自动授权和公众号摘要契约。"""
 
 from pathlib import Path
 
@@ -15,6 +15,11 @@ REQUIRED_TEXT = {
         "分步模式只等待用户确认本次配图方案",
         "不得因为缺少偏好文件触发首次配置",
         "分步模式只等待用户确认本次封面方案",
+        "用户回复 `自动 N` 即视为",
+        "展示执行摘要后立即开始",
+        "## 第 5 步：公众号摘要",
+        "{原稿}_公众号摘要.md",
+        "scripts/validate_summary.py",
     ],
     ROOT / "references" / "defaults.md": [
         "resolve_from_workflow: true",
@@ -28,6 +33,52 @@ REQUIRED_TEXT = {
         "output_dir: assets/",
         "image_backend: Codex 内置生图模型",
         "generation_batch_size: 4",
+        "selection_is_authorization: true",
+        "start_immediately_after_summary: true",
+        "max_chars: 120",
+        "filename: \"{原稿}_公众号摘要.md\"",
+        "run_after_final_step_validation: true",
+    ],
+    ROOT / "references" / "receipts.md": [
+        "5. **公众号摘要**",
+        "自动开始：第 N 步「步骤名称」。",
+        "第 5 步「公众号摘要」已完成",
+        "摘要字符数与格式校验结果",
+    ],
+    ROOT / "README.md": [
+        "5. 公众号摘要",
+        "不再等待第二次“开始”确认",
+        "不超过 120 字",
+    ],
+    ROOT / "agents" / "openai.yaml": [
+        "自动模式选择后立即连续执行",
+        "120 字以内的公众号摘要",
+    ],
+    ROOT / "scripts" / "validate_summary.py": [
+        "摘要必须是单个自然段",
+        "摘要不能包含链接",
+        "公众号摘要校验通过",
+    ],
+}
+
+FORBIDDEN_TEXT = {
+    ROOT / "SKILL.md": [
+        "等待用户回复 `开始`",
+        "使用自动执行摘要并等待 `开始`",
+        "连续执行到第 4 步结束",
+    ],
+    ROOT / "references" / "defaults.md": [
+        "confirmation_word: 开始",
+    ],
+    ROOT / "references" / "receipts.md": [
+        "回复 `开始`：按以上配置连续执行。",
+        "未收到 `开始` 前不要执行。",
+    ],
+    ROOT / "README.md": [
+        "用户回复“开始”后连续跑完",
+    ],
+    ROOT / "agents" / "openai.yaml": [
+        "在我确认开始后连续跑完",
     ],
 }
 
@@ -40,13 +91,22 @@ def main() -> int:
             if value not in text:
                 missing.append(f"{path.relative_to(ROOT)}: {value}")
 
-    if missing:
-        print("工作流配置继承检查失败：")
+    forbidden: list[str] = []
+    for path, values in FORBIDDEN_TEXT.items():
+        text = path.read_text(encoding="utf-8")
+        for value in values:
+            if value in text:
+                forbidden.append(f"{path.relative_to(ROOT)}: {value}")
+
+    if missing or forbidden:
+        print("工作流契约检查失败：")
         for item in missing:
             print(f"- 缺少 {item}")
+        for item in forbidden:
+            print(f"- 仍包含旧协议 {item}")
         return 1
 
-    print("工作流配置继承检查通过：父工作流默认值会跳过子 Skill 首次配置。")
+    print("工作流契约检查通过：父级默认值会跳过首次配置，自动模式立即执行，并生成 120 字以内摘要。")
     return 0
 
 
