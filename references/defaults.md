@@ -135,6 +135,30 @@ validation_script: scripts/validate_summary.py
 “摘要”标题、解释、备选版本或字数说明。去除首尾空白后按 Unicode 字符计数，中文、
 标点、英文字母和数字都计入长度，结果必须不超过 120 个字符。
 
+## 朋友圈转发文案
+
+```yaml
+source_priority:
+  - "{原稿}_配图版.md"
+  - "{原稿}_去除AI味.md"
+  - "{原稿}.md"
+max_han_chars: 100
+single_paragraph: true
+tone: natural-share
+include_title: false
+include_emoji: false
+include_hashtags: false
+include_links: false
+filename: "{原稿}_朋友圈文案.md"
+validation_script: scripts/validate_moments_copy.py
+```
+
+朋友圈文案必须忠于正文，但不照抄公众号摘要。用自然、具体的分享口吻表达分享动机，
+并提供一个与正文核心内容相关的阅读钩子。文件只保留文案正文，不添加“朋友圈文案”
+标题、解释或备选版本；开头直接进入问题、观察或观点，不使用文章标题、系列名或
+“第 N 篇”起手。去除首尾空白后不超过 100 个汉字，只统计汉字，标点、空格、
+英文字母和数字不计入汉字数。
+
 ## 产物命名
 
 默认不覆盖用户原稿：
@@ -146,6 +170,7 @@ validation_script: scripts/validate_summary.py
 原稿_排版_摸鱼绿.html
 原稿_排版_摸鱼绿_预览.html
 原稿_公众号摘要.md
+原稿_朋友圈文案.md
 ```
 
 如果从中间步骤开始，直接基于用户指定的输入文件生成该步骤产物。
@@ -163,6 +188,7 @@ cleanup:
     - "{原稿}_排版_{主题}.html"
     - "{原稿}_排版_{主题}_预览.html"
     - "{原稿}_公众号摘要.md"
+    - "{原稿}_朋友圈文案.md"
   keep_assets:
     - assets/cover.png
     - 被保留 Markdown 或纯净 HTML 引用的图片

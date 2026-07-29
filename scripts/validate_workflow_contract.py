@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""检查父级配置继承、自动授权和公众号摘要契约。"""
+"""检查父级配置继承、自动授权、摘要和朋友圈文案契约。"""
 
 from pathlib import Path
 
@@ -20,6 +20,10 @@ REQUIRED_TEXT = {
         "## 第 5 步：公众号摘要",
         "{原稿}_公众号摘要.md",
         "scripts/validate_summary.py",
+        "## 第 6 步：朋友圈转发文案",
+        "{原稿}_朋友圈文案.md",
+        "scripts/validate_moments_copy.py",
+        "连续执行到第 6 步结束",
     ],
     ROOT / "references" / "defaults.md": [
         "resolve_from_workflow: true",
@@ -37,27 +41,43 @@ REQUIRED_TEXT = {
         "start_immediately_after_summary: true",
         "max_chars: 120",
         "filename: \"{原稿}_公众号摘要.md\"",
+        "## 朋友圈转发文案",
+        "max_han_chars: 100",
+        "filename: \"{原稿}_朋友圈文案.md\"",
+        "validation_script: scripts/validate_moments_copy.py",
         "run_after_final_step_validation: true",
     ],
     ROOT / "references" / "receipts.md": [
         "5. **公众号摘要**",
+        "6. **朋友圈转发文案**",
         "自动开始：第 N 步「步骤名称」。",
-        "第 5 步「公众号摘要」已完成",
+        "第 6 步「朋友圈转发文案」已完成",
         "摘要字符数与格式校验结果",
+        "朋友圈文案汉字数与格式校验结果",
     ],
     ROOT / "README.md": [
         "5. 公众号摘要",
+        "6. 朋友圈转发文案",
         "不再等待第二次“开始”确认",
         "不超过 120 字",
+        "不超过 100 个汉字",
     ],
     ROOT / "agents" / "openai.yaml": [
-        "自动模式选择后立即连续执行",
+        "自动模式连续完成六步",
         "120 字以内的公众号摘要",
+        "100 个汉字以内的朋友圈转发文案",
     ],
     ROOT / "scripts" / "validate_summary.py": [
         "摘要必须是单个自然段",
         "摘要不能包含链接",
         "公众号摘要校验通过",
+    ],
+    ROOT / "scripts" / "validate_moments_copy.py": [
+        "朋友圈文案必须是单个自然段",
+        "朋友圈文案不能包含链接",
+        "朋友圈文案不能包含话题标签",
+        "不能用文章标题、系列名称、第 N 篇",
+        "朋友圈转发文案校验通过",
     ],
 }
 
@@ -66,6 +86,7 @@ FORBIDDEN_TEXT = {
         "等待用户回复 `开始`",
         "使用自动执行摘要并等待 `开始`",
         "连续执行到第 4 步结束",
+        "连续执行到第 5 步结束",
     ],
     ROOT / "references" / "defaults.md": [
         "confirmation_word: 开始",
@@ -73,6 +94,8 @@ FORBIDDEN_TEXT = {
     ROOT / "references" / "receipts.md": [
         "回复 `开始`：按以上配置连续执行。",
         "未收到 `开始` 前不要执行。",
+        "第 5 步改用最终回执",
+        "第 5 步完成后不再显示下一步",
     ],
     ROOT / "README.md": [
         "用户回复“开始”后连续跑完",
@@ -106,7 +129,7 @@ def main() -> int:
             print(f"- 仍包含旧协议 {item}")
         return 1
 
-    print("工作流契约检查通过：父级默认值会跳过首次配置，自动模式立即执行，并生成 120 字以内摘要。")
+    print("工作流契约检查通过：父级默认值会跳过首次配置，自动模式立即执行，并生成 120 字以内摘要和 100 个汉字以内朋友圈文案。")
     return 0
 
 

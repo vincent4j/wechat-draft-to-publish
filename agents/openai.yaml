@@ -1,7 +1,7 @@
 interface:
   display_name: "WeChat Draft to Publish"
-  short_description: "支持分步确认或选择后自动跑完五步，并清理无用中间产物"
-  default_prompt: "使用 $wechat-draft-to-publish 处理这份公众号草稿；自动模式选择后立即连续执行，每一步反馈进度，最后生成 120 字以内的公众号摘要并清理无用中间产物。"
+  short_description: "支持分步或自动完成六步公众号成稿与转发文案工作流"
+  default_prompt: "使用 $wechat-draft-to-publish 处理这份公众号草稿；自动模式连续完成六步，生成排版稿、120 字以内的公众号摘要和 100 个汉字以内的朋友圈转发文案。"
 
 policy:
   allow_implicit_invocation: true
