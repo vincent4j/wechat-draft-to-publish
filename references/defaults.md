@@ -21,20 +21,42 @@ child_skill_invocation:
 
 ```yaml
 mode: ask
-step_mode:
-  pause_after_each_step: true
-auto_mode:
+direct_mode:
   selection_is_authorization: true
   show_execution_summary: true
   start_immediately_after_summary: true
   pause_after_each_step: false
   progress_receipt_after_each_step: true
   reuse_default_generation_parameters: true
+review_mode:
+  pause_after_result_steps:
+    - 1
+    - 2
+    - 3
+    - 4
+  continue_without_pause_after_steps:
+    - 5
+    - 6
+  confirm_actual_result_not_generation_plan: true
+execution_scope:
+  infer_from_requested_outputs: true
+  allow_single_step: true
+  allow_contiguous_range: true
+  allow_selected_steps: true
+  do_not_expand_scope: true
+legacy_commands:
+  auto_n: "直接完成第 N 至第 6 步"
+  step_n: "边做边看第 N 至第 6 步"
+  bare_number: "边做边看第 N 至第 6 步"
 ```
 
-用户回复 `自动 N` 就是对本次执行和默认生成参数的总授权。自动执行摘要只用于说明
-接下来会做什么，发出后立即开始；不得再要求用户回复 `开始`、步骤序号，或确认配图、
-封面方案。执行期间仍逐步反馈。
+用户明确选择“直接完成”、自动处理、全部处理或清楚指定单项产物，就是对本次执行
+范围和默认生成参数的授权。执行摘要只用于说明实际执行和明确跳过的内容，发出后立即
+开始；不得再要求用户回复 `开始`、步骤序号，或确认配图、封面方案。执行期间仍逐步
+反馈，但不得自动扩大到用户没有要求的步骤。
+
+“边做边看”只在正文、配图、封面和排版的实际结果完成后暂停，不增加生成前方案确认；
+摘要、朋友圈文案和机械校验连续完成。`自动 N`、`分步 N` 和单独数字只作为兼容入口。
 
 ## 正文配图
 
@@ -181,6 +203,12 @@ validation_script: scripts/validate_moments_copy.py
 cleanup:
   enabled: true
   run_after_final_step_validation: true
+  require_current_scope_steps:
+    - 4
+    - 5
+    - 6
+  allow_explicit_cleanup_request: true
+  skip_for_partial_scope_by_default: true
   keep_root_documents:
     - "{原稿}.md"
     - "{原稿}_去除AI味.md"
@@ -207,3 +235,25 @@ cleanup:
 
 清理不删除文章根目录中的任何 Markdown 或 HTML，也不删除命名规则之外的未知文件。
 必须先预览删除清单，再由工作流自行核对并执行，不需要用户二次确认。
+
+## 发布包一致性
+
+```yaml
+package_consistency:
+  authoritative_source: 本次最终使用的 Markdown 正文
+  compare:
+    - 封面主题
+    - 正文配图语义
+    - 公众号摘要
+    - 朋友圈转发文案
+  dimensions:
+    - 标题与主题
+    - 核心观点
+    - 目标读者
+  report_stale_outputs: true
+  regenerate_only_when_in_scope: true
+```
+
+到达本次执行范围末尾时，只检查本次生成或已有且可验证的产物。完整回执必须列出实际
+完成、明确跳过、生成文件、校验结果、清理结果和可能已经过期的后续产物。缺少未请求的
+产物不算失败，也不得为了凑齐发布包自动生成。
